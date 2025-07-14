@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pomodoro Timer – Kutollo's Blueprint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    header {
+  background: #0f172a;
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 2px solid #3b82f6;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #3b82f6;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+nav a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+nav a:hover {
+  background: #1e293b;
+  color: #3b82f6;
+}
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #10182f;
+      color: #f1f5f9;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #3b82f6;
+      margin-bottom: 0.5rem;
+    }
+
+    #datetime {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      margin-bottom: 2rem;
+    }
+
+    .mode-switcher {
+      margin-bottom: 1rem;
+    }
+
+    .mode-switcher button {
+      margin: 0.3rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #1e293b;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .mode-switcher button.active {
+      background-color: #3b82f6;
+      color: #fff;
+    }
+
+    .timer-circle {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 2rem auto;
+    }
+
+    svg {
+      transform: rotate(-90deg);
+    }
+
+    .circle-bg {
+      stroke: #334155;
+    }
+
+    .circle-progress {
+      stroke: #3b82f6;
+      transition: stroke-dashoffset 0.5s linear;
+    }
+
+    #timer-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2.5rem;
+      color: #f8fafc;
+    }
+
+    .inputs {
+      margin: 1rem 0;
+    }
+
+    .inputs input {
+      width: 80px;
+      padding: 0.4rem;
+      margin: 0.3rem;
+      border: none;
+      border-radius: 6px;
+      text-align: center;
+      background-color: #1e293b;
+      color: #f1f5f9;
+    }
+
+    .controls button {
+      background: #3b82f6;
+      color: #f1f5f9;
+      padding: 0.6rem 1.4rem;
+      margin: 0.4rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .controls button:hover {
+      background: #2563eb;
+    }
+
+    .info {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: #cbd5e1;
+    }
+
+    .footer {
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+  <h1>Kutollo's Blueprint to 90%</h1>
+  <div id="datetime">Loading...</div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="pomodoro.html">Pomodoro</a>
+    <a href="notes.html">Notes</a>
+    <a href="marks.html">Marks</a>
+    <a href="study-timetable.html">Timetable</a>
+  </nav>
+</header>
+
+  <div class="mode-switcher">
+    <button onclick="setMode('pomodoro')" class="active" id="btn-pomodoro">Pomodoro</button>
+    <button onclick="setMode('short')" id="btn-short">Short Break</button>
+    <button onclick="setMode('long')" id="btn-long">Long Break</button>
+  </div>
+
+  <div class="inputs">
+    <input type="number" id="customMinutes" placeholder="Minutes" min="1" max="99">
+    <button onclick="applyCustomTime()">Set Time</button>
+  </div>
+
+  <div class="timer-circle">
+    <svg width="200" height="200">
+      <circle class="circle-bg" cx="100" cy="100" r="90" stroke-width="10" fill="none"/>
+      <circle class="circle-progress" id="progress" cx="100" cy="100" r="90" stroke-width="10" fill="none" stroke-dasharray="565.48" stroke-dashoffset="0"/>
+    </svg>
+    <div id="timer-label">25:00</div>
+  </div>
+
+  <div class="controls">
+    <button onclick="startTimer()">Start</button>
+    <button onclick="pauseTimer()">Pause</button>
+    <button onclick="resetTimer()">Reset</button>
+  </div>
+
+  <div class="info">
+    <p>Laps Completed: <span id="laps">0</span></p>
+    <p id="nextLabel">Next: Short Break</p>
+  </div>
+
+  <div class="footer">© 2025 Kutollo's Academic Journey</div>
+
+  <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+  <script>
+    const modes = {
+      pomodoro: { time: 25, color: "#3b82f6", next: "Short Break" },
+      short: { time: 5, color: "#10b981", next: "Pomodoro" },
+      long: { time: 15, color: "#9333ea", next: "Pomodoro" }
+    };
+
+    let mode = 'pomodoro';
+    let timeLeft = modes[mode].time * 60;
+    let timer = null;
+    let laps = 0;
+    let isRunning = false;
+
+    const progress = document.getElementById("progress");
+    const label = document.getElementById("timer-label");
+    const nextLabel = document.getElementById("nextLabel");
+    const lapsDisplay = document.getElementById("laps");
+    const alarmSound = document.getElementById("alarmSound");
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("datetime").innerText = now.toLocaleString("en-ZA", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function format(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = seconds % 60;
+      return `${min < 10 ? "0" : ""}${min}:${sec < 10 ? "0" : ""}${sec}`;
+    }
+
+    function updateDisplay() {
+      label.innerText = format(timeLeft);
+      const percent = timeLeft / (modes[mode].time * 60);
+      progress.style.stroke = modes[mode].color;
+      progress.style.strokeDashoffset = 565.48 * (1 - percent);
+      document.body.style.setProperty('--main-color', modes[mode].color);
+    }
+
+    function setMode(newMode) {
+      if (isRunning) pauseTimer();
+      mode = newMode;
+      document.querySelectorAll('.mode-switcher button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${newMode}`).classList.add('active');
+      timeLeft = modes[mode].time * 60;
+      nextLabel.innerText = `Next: ${modes[mode].next}`;
+      updateDisplay();
+    }
+
+    function applyCustomTime() {
+      const custom = parseInt(document.getElementById("customMinutes").value);
+      if (!isNaN(custom) && custom > 0) {
+        timeLeft = custom * 60;
+        updateDisplay();
+      }
+    }
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      timer = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          isRunning = false;
+          alarmSound.play();
+          if (mode === 'pomodoro') {
+            laps++;
+            lapsDisplay.innerText = laps;
+          }
+          autoSwitchMode();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timer);
+      isRunning = false;
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timeLeft = modes[mode].time * 60;
+      updateDisplay();
+    }
+
+    function autoSwitchMode() {
+      const next = (mode === 'pomodoro') ? 'short' : 'pomodoro';
+      setMode(next);
+      startTimer();
+    }
+
+    // Initial setup
+    updateDisplay();
+  </script>
+</body>
+</html>

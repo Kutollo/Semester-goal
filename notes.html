@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Notes – Kutollo's Blueprint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #10182f;
+      color: #f1f5f9;
+      padding: 1rem;
+    }
+    header {
+      background: #0f172a;
+      padding: 1rem;
+      text-align: center;
+      border-bottom: 2px solid #3b82f6;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #3b82f6;
+    }
+    #datetime {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      margin-top: 0.3rem;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: #cbd5e1;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.3rem 0.8rem;
+      border-radius: 8px;
+      transition: 0.3s ease;
+    }
+    nav a:hover {
+      background: #1e293b;
+      color: #3b82f6;
+    }
+    .tabs {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+    .tabs button {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .tabs button.active {
+      background-color: #3b82f6;
+      color: #fff;
+    }
+    .controls, .tags, .resources, .btns, .search-area, .summary-area {
+      max-width: 800px;
+      margin: auto;
+    }
+    select, textarea, input, button {
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    select, input {
+      padding: 0.5rem;
+      background: #1e293b;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 8px;
+    }
+    textarea {
+      width: 100%;
+      height: 220px;
+      padding: 1rem;
+      margin-top: 1rem;
+      background: #1e293b;
+      color: #f1f5f9;
+      border: none;
+      border-radius: 12px;
+      resize: vertical;
+    }
+    .tags input {
+      margin-right: 0.3rem;
+    }
+    .highlight-btn {
+      margin: 1rem 0;
+      background: #9333ea;
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+    }
+    .resource-item {
+      margin-bottom: 0.6rem;
+    }
+    .resource-item input {
+      width: calc(50% - 0.5rem);
+      margin-right: 0.5rem;
+    }
+    .resource-item a {
+      display: block;
+      margin-top: 4px;
+      color: #3b82f6;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+    .btns button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .note-preview {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    }
+    .note-preview h3 {
+      margin-top: 0;
+      color: #3b82f6;
+    }
+    .note-preview pre {
+      white-space: pre-wrap;
+      background: #1e293b;
+      padding: 1rem;
+      border-radius: 8px;
+      color: #e2e8f0;
+      overflow-x: auto;
+    }
+    .note-preview a {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Kutollo's Notes</h1>
+    <div id="datetime"></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="pomodoro.html">Pomodoro</a>
+      <a href="notes.html">Notes</a>
+      <a href="marks.html">Marks</a>
+      <a href="study-timetable.html">Timetable</a>
+    </nav>
+  </header>
+
+  <div class="tabs" id="moduleTabs"></div>
+
+  <div class="controls">
+    <label for="weekSelect">Week:</label>
+    <select id="weekSelect"></select>
+  </div>
+
+  <textarea id="noteArea" placeholder="Write your notes here..."></textarea>
+
+  <div class="tags">
+    <label><input type="checkbox" value="Exam Tip"> Exam Tip</label>
+    <label><input type="checkbox" value="Formula"> Formula</label>
+    <label><input type="checkbox" value="Lab"> Lab</label>
+    <label><input type="checkbox" value="Theory"> Theory</label>
+  </div>
+
+  <button class="highlight-btn" onclick="highlightText()">Highlight Selected</button>
+
+  <div class="resources">
+    <h3>Resource Links</h3>
+    <div id="resourceList"></div>
+    <button onclick="addResource()">Add Resource</button>
+  </div>
+
+  <div class="btns">
+    <button onclick="saveNote()">💾 Save Note</button>
+    <button onclick="downloadPDF()">⬇ Download PDF</button>
+    <button onclick="viewNote()">📄 View Note</button>
+  </div>
+
+  <div class="note-preview" id="notePreview" style="display: none;">
+    <h3>📘 Preview</h3>
+    <p><strong>Module:</strong> <span id="previewModule"></span></p>
+    <p><strong>Week:</strong> <span id="previewWeek"></span></p>
+    <p><strong>Date:</strong> <span id="previewDate"></span></p>
+    <p><strong>Tags:</strong> <span id="previewTags"></span></p>
+    <h4>📝 Notes:</h4>
+    <pre id="previewText"></pre>
+    <h4>🔗 Links:</h4>
+    <ul id="previewLinks"></ul>
+  </div>
+
+  <div class="footer">© 2025 Kutollo</div>
+
+  <script>
+    const modules = ["Refrigeration", "Stress Analysis", "Turbo Machines", "Automation Control", "Design Project"];
+    let currentModule = modules[0];
+
+    function updateDateTime() {
+      document.getElementById("datetime").innerText = new Date().toLocaleString();
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    const moduleTabs = document.getElementById("moduleTabs");
+    const weekSelect = document.getElementById("weekSelect");
+    const noteArea = document.getElementById("noteArea");
+    const resourceList = document.getElementById("resourceList");
+
+    modules.forEach(module => {
+      const btn = document.createElement("button");
+      btn.innerText = module;
+      btn.onclick = () => switchModule(module);
+      btn.classList.add("module-btn");
+      if (module === currentModule) btn.classList.add("active");
+      moduleTabs.appendChild(btn);
+    });
+
+    for (let i = 1; i <= 14; i++) {
+      const opt = document.createElement("option");
+      opt.value = "Week " + i;
+      opt.innerText = "Week " + i;
+      weekSelect.appendChild(opt);
+    }
+
+    weekSelect.addEventListener("change", loadNote);
+    noteArea.addEventListener("input", () => saveNote(false));
+
+    function switchModule(mod) {
+      currentModule = mod;
+      document.querySelectorAll(".module-btn").forEach(btn => btn.classList.remove("active"));
+      [...moduleTabs.children].find(b => b.innerText === mod).classList.add("active");
+      loadNote();
+    }
+
+    function noteKey() {
+      return `${currentModule}_W${weekSelect.selectedIndex + 1}`;
+    }
+
+    function saveNote(showMsg = true) {
+      const key = noteKey();
+      const note = {
+        text: noteArea.value,
+        tags: Array.from(document.querySelectorAll(".tags input:checked")).map(i => i.value),
+        links: Array.from(resourceList.querySelectorAll(".resource-item")).map(item => ({
+          title: item.querySelector(".link-title").value,
+          url: item.querySelector(".link-url").value
+        })),
+        date: new Date().toLocaleString()
+      };
+      localStorage.setItem(key, JSON.stringify(note));
+    }
+
+    function loadNote() {
+      const key = noteKey();
+      const data = JSON.parse(localStorage.getItem(key)) || { text: "", tags: [], links: [], date: "" };
+      noteArea.value = data.text;
+      document.querySelectorAll(".tags input").forEach(i => i.checked = data.tags.includes(i.value));
+      resourceList.innerHTML = "";
+      (data.links || []).forEach(link => addResource(link.title, link.url));
+    }
+
+    function addResource(title = "", url = "") {
+      const div = document.createElement("div");
+      div.className = "resource-item";
+      div.innerHTML = `
+        <input type="text" class="link-title" placeholder="Title" value="${title}" />
+        <input type="url" class="link-url" placeholder="Link" value="${url}" />
+        <a href="${url}" target="_blank">🔗 ${title}</a>
+      `;
+      resourceList.appendChild(div);
+    }
+
+    function viewNote() {
+      const data = JSON.parse(localStorage.getItem(noteKey()));
+      if (!data) return;
+
+      document.getElementById("previewModule").innerText = currentModule;
+      document.getElementById("previewWeek").innerText = weekSelect.value;
+      document.getElementById("previewDate").innerText = data.date || "";
+      document.getElementById("previewTags").innerText = (data.tags || []).join(", ");
+      document.getElementById("previewText").innerText = data.text || "";
+
+      const linkList = document.getElementById("previewLinks");
+      linkList.innerHTML = "";
+      (data.links || []).forEach(link => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="${link.url}" target="_blank">${link.title}</a>`;
+        linkList.appendChild(li);
+      });
+
+      document.getElementById("notePreview").style.display = "block";
+    }
+
+    function highlightText() {
+      const start = noteArea.selectionStart;
+      const end = noteArea.selectionEnd;
+      const selected = noteArea.value.substring(start, end);
+      if (!selected) return;
+      const before = noteArea.value.substring(0, start);
+      const after = noteArea.value.substring(end);
+      noteArea.value = `${before}**${selected}**${after}`;
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const title = `${currentModule} - ${weekSelect.value}`;
+      const text = noteArea.value;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text(title, 10, 20);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      const lines = doc.splitTextToSize(text, 180);
+      doc.text(lines, 10, 30);
+      doc.save(`${currentModule}_Week${weekSelect.selectedIndex + 1}.pdf`);
+    }
+
+    loadNote();
+  </script>
+</body>
+</html>

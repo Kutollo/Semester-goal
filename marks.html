@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Marks Tracker – Kutollo's Blueprint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Performance Tracker</h1>
+    <div id="datetime"></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="pomodoro.html">Pomodoro</a>
+      <a href="notes.html">Notes</a>
+      <a href="marks.html" class="active">Marks</a>
+      <a href="study-timetable.html">Timetable</a>
+    </nav>
+  </header>
+
+  <div class="tabs" id="moduleTabs"></div>
+  <div class="marks-container">
+    <div class="summary">
+      <h2 id="moduleTitle">Refrigeration</h2>
+      <p><strong>Final Mark:</strong> <span id="finalMark">0%</span> <span id="statusBadge"></span></p>
+      <canvas id="categoryChart" height="100"></canvas>
+    </div>
+
+    <div class="controls">
+      <table id="marksTable">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Score (%)</th>
+            <th>Weight (%)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button onclick="addRow()">+ Add Entry</button>
+      <button onclick="saveModule()">💾 Save</button>
+      <button onclick="resetModule()">🗑 Reset</button>
+      <button onclick="exportPDF()">⬇ Export PDF</button>
+    </div>
+  </div>
+
+  <footer class="footer">© 2025 Kutollo – Aim 90%+</footer>
+  <script src="marks.js"></script>
+</body>
+</html>
