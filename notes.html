@@ -213,6 +213,10 @@
     <pre id="previewText"></pre>
     <h4>🔗 Links:</h4>
     <ul id="previewLinks"></ul>
+    <div style="margin-top: 1rem; text-align: center;">
+  <button onclick="editNote()">✏ Edit Note</button>
+  <button onclick="deleteNote()">🗑 Delete Note</button>
+    </div>
   </div>
 
   <div class="footer">© 2025 Kutollo</div>
@@ -286,14 +290,14 @@
     }
 
     function addResource(title = "", url = "") {
-      const div = document.createElement("div");
-      div.className = "resource-item";
-      div.innerHTML = `
-        <input type="text" class="link-title" placeholder="Title" value="${title}" />
-        <input type="url" class="link-url" placeholder="Link" value="${url}" />
-        <a href="${url}" target="_blank">🔗 ${title}</a>
-      `;
-      resourceList.appendChild(div);
+  const div = document.createElement("div");
+  div.className = "resource-item";
+  div.innerHTML = `
+    <input type="text" class="link-title" placeholder="Title" value="${title}" />
+    <input type="url" class="link-url" placeholder="Link" value="${url}" oninput="this.nextElementSibling.src=this.value" />
+    <iframe src="${url}" width="100%" height="100" style="border:1px solid #3b82f6; margin-top:0.5rem; border-radius:6px;"></iframe>
+  `;
+  resourceList.appendChild(div);
     }
 
     function viewNote() {
@@ -341,7 +345,26 @@
       doc.text(lines, 10, 30);
       doc.save(`${currentModule}_Week${weekSelect.selectedIndex + 1}.pdf`);
     }
+function deleteNote() {
+  if (!confirm("Are you sure you want to delete this note?")) return;
+  localStorage.removeItem(noteKey());
+  noteArea.value = "";
+  document.querySelectorAll(".tags input").forEach(i => (i.checked = false));
+  resourceList.innerHTML = "";
+  document.getElementById("notePreview").style.display = "none";
+}
 
+function editNote() {
+  const data = JSON.parse(localStorage.getItem(noteKey()));
+  if (!data) return;
+
+  noteArea.value = data.text || "";
+  document.querySelectorAll(".tags input").forEach(i => i.checked = data.tags.includes(i.value));
+  resourceList.innerHTML = "";
+  (data.links || []).forEach(link => addResource(link.title, link.url));
+
+  document.getElementById("notePreview").style.display = "none";
+        }
     loadNote();
   </script>
 </body>
