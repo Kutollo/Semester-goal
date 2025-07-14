@@ -308,7 +308,7 @@
       document.getElementById("previewWeek").innerText = weekSelect.value;
       document.getElementById("previewDate").innerText = data.date || "";
       document.getElementById("previewTags").innerText = (data.tags || []).join(", ");
-      document.getElementById("previewText").innerText = data.text || "";
+      document.getElementById("previewText").innerHTML = (data.text || "").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
       const linkList = document.getElementById("previewLinks");
       linkList.innerHTML = "";
