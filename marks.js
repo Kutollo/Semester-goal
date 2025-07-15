@@ -300,3 +300,8 @@ function exportPDF() {
 // Initialize
 initTabs();
 loadModuleData();
+
+function logout() {
+  localStorage.removeItem("marksLoggedIn");
+  window.location.href = "login.html";
+}
